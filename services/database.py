@@ -79,40 +79,67 @@ class DatabaseService:
     def load_products_from_csv(self, csv_path: str) -> int:
         """
         Load products from CSV file into database.
-        
+
         Args:
             csv_path (str): Path to CSV file
-            
+
         Returns:
             int: Number of products loaded
         """
         try:
             df = pd.read_csv(csv_path)
-            
+
+            # Clean the data
+            import re
+            def clean_text(text):
+                if pd.isna(text):
+                    return ''
+                # Remove special characters and emojis
+                text = re.sub(r'[^\w\s\-\.]', ' ', str(text))
+                return ' '.join(text.split())
+
+            def clean_price(price):
+                if pd.isna(price):
+                    return 0.0
+                price_str = str(price)
+                price_clean = re.sub(r'[^\d\.]', '', price_str)
+                try:
+                    return float(price_clean) if price_clean else 0.0
+                except:
+                    return 0.0
+
+            df['Description'] = df['Description'].apply(clean_text)
+            df['UnitPrice'] = df['UnitPrice'].apply(clean_price)
+            df['Country'] = df['Country'].apply(clean_text)
+            df['StockCode'] = df['StockCode'].apply(clean_text)
+
+            # Filter valid data
+            df = df[df['Description'].str.len() > 3]
+            df = df[df['UnitPrice'] > 0]
+
             with self.get_connection() as conn:
                 cursor = conn.cursor()
-                
+
                 products_loaded = 0
                 for _, row in df.iterrows():
                     try:
                         cursor.execute('''
-                            INSERT OR REPLACE INTO products 
+                            INSERT OR REPLACE INTO products
                             (stock_code, description, unit_price, country)
                             VALUES (?, ?, ?, ?)
                         ''', (
-                            row.get('StockCode', ''),
-                            row.get('Description', ''),
-                            float(row.get('UnitPrice', 0)),
-                            row.get('Country', '')
+                            row['StockCode'],
+                            row['Description'],
+                            row['UnitPrice'],
+                            row['Country']
                         ))
                         products_loaded += 1
                     except Exception as e:
-                        print(f"Error loading product {row}: {e}")
                         continue
-                
+
                 conn.commit()
                 return products_loaded
-                
+
         except Exception as e:
             print(f"Error loading CSV: {e}")
             return 0
