@@ -28,9 +28,10 @@ body {
     line-height: 1.6;
     color: var(--text-primary);
     overflow-x: hidden;
+    position: relative;
 }
 
-/* 🌟 ANIMATED BACKGROUND */
+/* 🌟 BEAUTIFUL BACKGROUND WITH OVERLAY */
 body::before {
     content: '';
     position: fixed;
@@ -42,8 +43,20 @@ body::before {
         radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
         radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
         radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
-    z-index: -1;
+    z-index: -2;
     animation: backgroundShift 20s ease-in-out infinite;
+}
+
+/* 🎨 DARK OVERLAY FOR READABILITY */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: -1;
 }
 
 @keyframes backgroundShift {
@@ -53,13 +66,14 @@ body::before {
 
 /* 🧭 STUNNING NAVIGATION */
 .navbar {
-    background: rgba(0,0,0,0.1) !important;
+    background: rgba(0,0,0,0.8) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255,255,255,0.15);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     padding: 1.2rem 0;
     position: relative;
+    z-index: 1000;
 }
 
 .navbar::before {
@@ -81,9 +95,19 @@ body::before {
 .navbar-brand {
     font-weight: 800;
     font-size: 1.5rem;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
     position: relative;
     z-index: 2;
+    color: white !important;
+}
+
+.navbar-brand .gradient-text {
+    background: linear-gradient(45deg, #fff, #f0f0f0, #fff);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titleShine 3s ease-in-out infinite;
 }
 
 /* 🃏 MAGNIFICENT CARDS */
