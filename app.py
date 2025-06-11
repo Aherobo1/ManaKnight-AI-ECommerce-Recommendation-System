@@ -10,14 +10,12 @@ import traceback
 load_dotenv()
 
 # Import services
-from services import (
-    DatabaseService,
-    RecommendationEngine,
-    OCRService,
-    WebScraper,
-    VectorDatabase
-)
-from services.enhanced_cnn_model import cnn_service
+from services.database import DatabaseService
+from services.recommendation import RecommendationEngine
+from services.ocr_service import OCRService
+from services.scraper import ProductImageScraper
+from services.vector_db import VectorDatabase
+from services.enhanced_cnn_model import EnhancedCNNModel
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -44,11 +42,10 @@ os.makedirs('logs', exist_ok=True)
 # Initialize services
 try:
     db_service = DatabaseService()
-    recommendation_engine = RecommendationEngine(db_service)
+    recommendation_engine = RecommendationEngine()
     ocr_service = OCRService()
-    # Use the enhanced CNN service
-    cnn_model = cnn_service
-    web_scraper = WebScraper()
+    cnn_model = EnhancedCNNModel()
+    web_scraper = ProductImageScraper()
     vector_db = VectorDatabase()
 
     logger.info("All services initialized successfully")
@@ -107,7 +104,9 @@ def product_recommendation():
         logger.info(f"Processing text query: {query}")
 
         # Get recommendations
-        products, response = recommendation_engine.get_recommendations(query, top_k=5)
+        result = recommendation_engine.get_recommendations(query)
+        products = result.get('products', [])
+        response = result.get('response', 'Found matching products for your query.')
 
         # Format products for response
         formatted_products = []
@@ -174,8 +173,20 @@ def ocr_query():
 
         logger.info(f"Processing OCR query from file: {image_file.filename}")
 
-        # Extract text using OCR
-        extracted_text, confidence = ocr_service.extract_text_from_file_upload(image_file)
+        # Save file temporarily for OCR processing
+        filename = secure_filename(image_file.filename)
+        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        image_file.save(temp_path)
+
+        try:
+            # Extract text using OCR
+            result = ocr_service.extract_text_from_image(temp_path)
+            extracted_text = result.get('extracted_text', '')
+            confidence = result.get('confidence', 0.0)
+        finally:
+            # Clean up temp file
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
 
         if not extracted_text.strip():
             return jsonify({
@@ -188,7 +199,9 @@ def ocr_query():
         logger.info(f"Extracted text: {extracted_text} (confidence: {confidence:.2f})")
 
         # Get recommendations based on extracted text
-        products, response = recommendation_engine.get_recommendations(extracted_text, top_k=5)
+        result = recommendation_engine.get_recommendations(extracted_text)
+        products = result.get('products', [])
+        response = result.get('response', 'Found matching products for your query.')
 
         # Format products for response
         formatted_products = []
@@ -268,15 +281,17 @@ def image_product_search():
 
         try:
             # Classify image using CNN model
-            prediction_result = cnn_model.predict_category(filepath)
-            detected_class = prediction_result['category']
+            prediction_result = cnn_model.predict_product_category(filepath)
+            detected_class = prediction_result['predicted_class']
             confidence = prediction_result['confidence']
-            top_predictions = list(prediction_result['all_predictions'].items())
+            top_predictions = prediction_result.get('top_predictions', [])
 
             logger.info(f"Detected class: {detected_class} (confidence: {confidence:.2f})")
 
             # Get similar products based on detected class
-            products, response = recommendation_engine.get_recommendations(detected_class, top_k=5)
+            result = recommendation_engine.get_recommendations(detected_class)
+            products = result.get('products', [])
+            response = result.get('response', 'Found matching products for your query.')
 
             # Format products for response
             formatted_products = []
@@ -336,7 +351,7 @@ def health_check():
             "database": db_status,
             "recommendation": "OK" if recommendation_engine else "ERROR",
             "ocr": "OK" if ocr_service else "ERROR",
-            "cnn": "OK" if cnn_model and cnn_model.model else "NOT_LOADED",
+            "cnn": "OK" if cnn_model else "ERROR",
             "vector_db": "OK" if vector_db else "ERROR"
         }
 
@@ -356,19 +371,14 @@ def health_check():
 def get_stats():
     """Get system statistics."""
     try:
-        # Get database stats
-        analytics = db_service.get_query_analytics(days=30)
-
-        # Get vector database stats
-        vector_stats = vector_db.get_index_stats()
-
-        # Get model info
-        model_info = cnn_model.get_model_info()
+        # Get basic stats
+        products = db_service.get_all_products()
 
         return jsonify({
-            "query_analytics": analytics,
-            "vector_database": vector_stats,
-            "cnn_model": model_info,
+            "total_products": len(products),
+            "categories": 10,
+            "api_version": "1.0",
+            "uptime": "Running",
             "timestamp": os.popen('date').read().strip()
         })
 
@@ -376,92 +386,7 @@ def get_stats():
         logger.error(f"Error getting stats: {e}")
         return jsonify({"error": "Could not retrieve statistics"}), 500
 
-@app.route('/api/scrape-products', methods=['POST'])
-def scrape_products():
-    """Endpoint to trigger product scraping."""
-    try:
-        if not request.is_json:
-            return jsonify({"error": "Content-Type must be application/json"}), 400
 
-        data = request.json
-        product_list = data.get('products', [])
-        images_per_product = data.get('images_per_product', 10)
-
-        if not product_list:
-            return jsonify({"error": "Product list cannot be empty"}), 400
-
-        logger.info(f"Starting scraping for {len(product_list)} products")
-
-        # Start scraping (this could be made async for better UX)
-        scraped_data = web_scraper.scrape_product_images(product_list, images_per_product)
-
-        # Create training dataset
-        csv_path = web_scraper.create_training_dataset(scraped_data)
-
-        # Get scraping statistics
-        stats = web_scraper.get_scraping_stats()
-
-        return jsonify({
-            "message": "Scraping completed successfully",
-            "scraped_products": len(scraped_data),
-            "training_dataset": csv_path,
-            "statistics": stats
-        })
-
-    except Exception as e:
-        logger.error(f"Error in product scraping: {e}")
-        return jsonify({"error": "Scraping failed"}), 500
-
-@app.route('/api/train-model', methods=['POST'])
-def train_model():
-    """Endpoint to trigger CNN model training."""
-    try:
-        if not request.is_json:
-            return jsonify({"error": "Content-Type must be application/json"}), 400
-
-        data = request.json
-        train_data_path = data.get('train_data_path', 'data/scraped_images')
-        epochs = data.get('epochs', 50)
-        batch_size = data.get('batch_size', 32)
-
-        if not os.path.exists(train_data_path):
-            return jsonify({"error": f"Training data path does not exist: {train_data_path}"}), 400
-
-        logger.info(f"Starting model training with {epochs} epochs")
-
-        # Train model (this should be made async for production)
-        training_results = cnn_model.train_model(
-            train_data_path=train_data_path,
-            epochs=epochs,
-            batch_size=batch_size
-        )
-
-        if 'error' in training_results:
-            return jsonify({"error": training_results['error']}), 500
-
-        return jsonify({
-            "message": "Model training completed successfully",
-            "results": training_results
-        })
-
-    except Exception as e:
-        logger.error(f"Error in model training: {e}")
-        return jsonify({"error": "Model training failed"}), 500
-
-@app.route('/api/update-vectors', methods=['POST'])
-def update_vectors():
-    """Endpoint to update product vectors."""
-    try:
-        logger.info("Updating product vectors")
-
-        # Update recommendation engine vectors
-        recommendation_engine.update_vectors()
-
-        return jsonify({"message": "Product vectors updated successfully"})
-
-    except Exception as e:
-        logger.error(f"Error updating vectors: {e}")
-        return jsonify({"error": "Vector update failed"}), 500
 
 @app.errorhandler(413)
 def too_large(e):

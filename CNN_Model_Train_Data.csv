@@ -1,0 +1,31 @@
+image_path,category,label,description
+data/images/laptop_001.jpg,laptop,0,Gaming Laptop High Performance
+data/images/laptop_002.jpg,laptop,0,Business Laptop Professional
+data/images/laptop_003.jpg,laptop,0,Student Laptop Affordable
+data/images/smartphone_001.jpg,smartphone,1,Android Smartphone Premium
+data/images/smartphone_002.jpg,smartphone,1,iPhone Latest Model
+data/images/smartphone_003.jpg,smartphone,1,Budget Smartphone Basic
+data/images/headphones_001.jpg,headphones,2,Wireless Bluetooth Headphones
+data/images/headphones_002.jpg,headphones,2,Gaming Headset Professional
+data/images/headphones_003.jpg,headphones,2,Noise Cancelling Headphones
+data/images/camera_001.jpg,camera,3,DSLR Camera Professional
+data/images/camera_002.jpg,camera,3,Mirrorless Camera Compact
+data/images/camera_003.jpg,camera,3,Action Camera Waterproof
+data/images/watch_001.jpg,watch,4,Smartwatch Fitness Tracker
+data/images/watch_002.jpg,watch,4,Luxury Watch Classic
+data/images/watch_003.jpg,watch,4,Sports Watch Digital
+data/images/shoes_001.jpg,shoes,5,Running Shoes Athletic
+data/images/shoes_002.jpg,shoes,5,Casual Shoes Comfortable
+data/images/shoes_003.jpg,shoes,5,Formal Shoes Business
+data/images/bag_001.jpg,bag,6,Backpack Travel Large
+data/images/bag_002.jpg,bag,6,Handbag Designer Luxury
+data/images/bag_003.jpg,bag,6,Laptop Bag Professional
+data/images/book_001.jpg,book,7,Programming Book Technical
+data/images/book_002.jpg,book,7,Fiction Novel Bestseller
+data/images/book_003.jpg,book,7,Educational Textbook
+data/images/toy_001.jpg,toy,8,Educational Toy Children
+data/images/toy_002.jpg,toy,8,Action Figure Collectible
+data/images/toy_003.jpg,toy,8,Board Game Family
+data/images/furniture_001.jpg,furniture,9,Office Chair Ergonomic
+data/images/furniture_002.jpg,furniture,9,Desk Modern Workspace
+data/images/furniture_003.jpg,furniture,9,Sofa Comfortable Living

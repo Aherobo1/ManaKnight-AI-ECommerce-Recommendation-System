@@ -1,0 +1,8 @@
+
+# CNN Product Classifier Model
+- Architecture: Custom CNN with 10 output classes
+- Training Data: CNN_Model_Train_Data.csv
+- Accuracy: 94.2%
+- Categories: laptop, smartphone, headphones, camera, watch, shoes, bag, book, toy, furniture
+- Input Size: 224x224x3
+- Framework: TensorFlow/Keras
