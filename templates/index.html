@@ -105,89 +105,105 @@
             </div>
         </div>
 
+        <!-- 🎨 STUNNING FEATURE CARDS -->
         <div class="row g-4">
             <!-- Text Query Interface -->
             <div class="col-lg-4 col-md-6">
-                <div class="card h-100 shadow-sm hover-card">
+                <div class="card h-100 hover-card interactive-card fade-in">
                     <div class="card-body text-center">
-                        <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-keyboard fa-2x"></i>
+                        <div class="feature-icon bg-primary text-white mx-auto mb-4">
+                            <i class="fas fa-comments fa-2x"></i>
                         </div>
-                        <h4 class="card-title">Text Query</h4>
-                        <p class="card-text">
-                            Search for products using natural language. Just type what you're looking for!
+                        <h3 class="card-title fw-bold mb-3 gradient-text">Natural Language Search</h3>
+                        <p class="card-text mb-4" style="font-size: 1.1rem;">
+                            Simply describe what you're looking for in plain English. Our AI understands context
+                            and finds the perfect products for you.
                         </p>
-                        <div class="mb-3">
-                            <small class="text-muted">
-                                <i class="fas fa-check-circle text-success me-1"></i>
-                                Natural Language Processing
-                            </small><br>
-                            <small class="text-muted">
-                                <i class="fas fa-check-circle text-success me-1"></i>
-                                Smart Recommendations
-                            </small>
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="fw-bold">TF-IDF Vectorization</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="fw-bold">Semantic Understanding</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="fw-bold">Context Awareness</span>
+                            </div>
                         </div>
-                        <a href="/text-query" class="btn btn-primary btn-lg">
+                        <a href="/text-query" class="btn btn-primary btn-lg glow">
                             <i class="fas fa-search me-2"></i>
-                            Start Text Search
+                            Try Text Search
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Image Query Interface -->
+            <!-- OCR Query Interface -->
             <div class="col-lg-4 col-md-6">
-                <div class="card h-100 shadow-sm hover-card">
+                <div class="card h-100 hover-card interactive-card fade-in" style="animation-delay: 0.2s;">
                     <div class="card-body text-center">
-                        <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
+                        <div class="feature-icon bg-success text-white mx-auto mb-4">
                             <i class="fas fa-image fa-2x"></i>
                         </div>
-                        <h4 class="card-title">Handwritten Query</h4>
-                        <p class="card-text">
-                            Upload an image with handwritten text and let our OCR technology extract your query.
+                        <h3 class="card-title fw-bold mb-3 gradient-text">Handwriting Recognition</h3>
+                        <p class="card-text mb-4" style="font-size: 1.1rem;">
+                            Upload images with handwritten text and let our OCR technology extract and
+                            process your queries automatically.
                         </p>
-                        <div class="mb-3">
-                            <small class="text-muted">
-                                <i class="fas fa-check-circle text-success me-1"></i>
-                                OCR Technology
-                            </small><br>
-                            <small class="text-muted">
-                                <i class="fas fa-check-circle text-success me-1"></i>
-                                Handwriting Recognition
-                            </small>
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="fw-bold">Tesseract OCR Engine</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="fw-bold">Image Preprocessing</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="fw-bold">Confidence Scoring</span>
+                            </div>
                         </div>
-                        <a href="/image-query" class="btn btn-success btn-lg">
-                            <i class="fas fa-upload me-2"></i>
-                            Upload Image Query
+                        <a href="/image-query" class="btn btn-success btn-lg glow">
+                            <i class="fas fa-camera me-2"></i>
+                            Try OCR Search
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Product Image Upload -->
+            <!-- CNN Product Search -->
             <div class="col-lg-4 col-md-6">
-                <div class="card h-100 shadow-sm hover-card">
+                <div class="card h-100 hover-card interactive-card fade-in" style="animation-delay: 0.4s;">
                     <div class="card-body text-center">
-                        <div class="feature-icon bg-warning text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-camera fa-2x"></i>
+                        <div class="feature-icon bg-warning text-white mx-auto mb-4">
+                            <i class="fas fa-brain fa-2x"></i>
                         </div>
-                        <h4 class="card-title">Product Image Search</h4>
-                        <p class="card-text">
-                            Upload a product image and find similar items using our CNN-powered image recognition.
+                        <h3 class="card-title fw-bold mb-3 gradient-text">Visual Product Recognition</h3>
+                        <p class="card-text mb-4" style="font-size: 1.1rem;">
+                            Upload product images and our CNN model will identify the category and
+                            suggest similar items instantly.
                         </p>
-                        <div class="mb-3">
-                            <small class="text-muted">
-                                <i class="fas fa-check-circle text-success me-1"></i>
-                                CNN Image Recognition
-                            </small><br>
-                            <small class="text-muted">
-                                <i class="fas fa-check-circle text-success me-1"></i>
-                                Visual Similarity Search
-                            </small>
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="fw-bold">CNN Classification</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="fw-bold">10 Product Categories</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="fw-bold">Real-time Processing</span>
+                            </div>
                         </div>
-                        <a href="/product-upload" class="btn btn-warning btn-lg">
-                            <i class="fas fa-camera me-2"></i>
-                            Upload Product Image
+                        <a href="/product-upload" class="btn btn-warning btn-lg glow">
+                            <i class="fas fa-upload me-2"></i>
+                            Try Image Search
                         </a>
                     </div>
                 </div>
