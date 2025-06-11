@@ -14,10 +14,10 @@ from services import (
     DatabaseService,
     RecommendationEngine,
     OCRService,
-    CNNModel,
     WebScraper,
     VectorDatabase
 )
+from services.enhanced_cnn_model import cnn_service
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -46,7 +46,8 @@ try:
     db_service = DatabaseService()
     recommendation_engine = RecommendationEngine(db_service)
     ocr_service = OCRService()
-    cnn_model = CNNModel()
+    # Use the enhanced CNN service
+    cnn_model = cnn_service
     web_scraper = WebScraper()
     vector_db = VectorDatabase()
 
@@ -267,7 +268,10 @@ def image_product_search():
 
         try:
             # Classify image using CNN model
-            detected_class, confidence, top_predictions = cnn_model.predict_image(image_path=filepath)
+            prediction_result = cnn_model.predict_category(filepath)
+            detected_class = prediction_result['category']
+            confidence = prediction_result['confidence']
+            top_predictions = list(prediction_result['all_predictions'].items())
 
             logger.info(f"Detected class: {detected_class} (confidence: {confidence:.2f})")
 
