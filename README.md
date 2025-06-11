@@ -1,3 +1,280 @@
+# E-Commerce Product Recommendation System
+
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)](https://flask.palletsprojects.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+A comprehensive AI-powered e-commerce product recommendation system that combines natural language processing, OCR technology, and computer vision to provide intelligent product recommendations through multiple input methods.
+
+## 🚀 Features
+
+- **Natural Language Queries**: Process customer queries in natural language and provide relevant product recommendations
+- **OCR-Based Query Processing**: Extract and process handwritten queries from uploaded images
+- **Image-Based Product Detection**: Identify products from images using custom CNN models
+- **Vector Database Integration**: Efficient similarity search using Pinecone vector database
+- **Web Scraping Capabilities**: Automated product image collection for model training
+- **RESTful API**: Well-documented API endpoints for all functionalities
+- **Responsive Web Interface**: User-friendly frontend for all interaction modes
+
+## 📋 Table of Contents
+
+- [Project Overview](#project-overview)
+- [Features](#-features)
+- [Technology Stack](#-technology-stack)
+- [Installation](#-installation)
+- [API Documentation](#-api-documentation)
+- [Project Structure](#-project-structure)
+- [Usage Examples](#-usage-examples)
+- [Development Status](#-development-status)
+- [Module Details](#module-details)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+## 🛠 Technology Stack
+
+### Backend
+- **Framework**: Flask (Python web framework)
+- **Vector Database**: Pinecone (for similarity search and recommendations)
+- **OCR**: Tesseract (text extraction from images)
+- **Machine Learning**: TensorFlow/Keras (custom CNN model development)
+- **Web Scraping**: BeautifulSoup, Selenium
+- **Image Processing**: OpenCV, PIL
+
+### Frontend
+- **HTML5/CSS3**: Responsive web interfaces
+- **JavaScript**: Interactive user experience
+- **Bootstrap**: UI components and styling
+
+### Database & Storage
+- **Vector Database**: Pinecone
+- **File Storage**: Local filesystem (configurable for cloud storage)
+
+### Development Tools
+- **Package Management**: pip, requirements.txt
+- **Version Control**: Git
+- **Documentation**: Markdown
+
+## 📦 Installation
+
+### Prerequisites
+- Python 3.8 or higher
+- pip package manager
+- Git
+
+### Step-by-Step Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd ds_task_1ab
+   ```
+
+2. **Create a virtual environment**
+   ```bash
+   python -m venv venv
+
+   # On Windows
+   venv\Scripts\activate
+
+   # On macOS/Linux
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Set up environment variables**
+   Create a `.env` file in the root directory:
+   ```env
+   PINECONE_API_KEY=your_pinecone_api_key
+   PINECONE_ENVIRONMENT=your_pinecone_environment
+   FLASK_ENV=development
+   FLASK_DEBUG=True
+   ```
+
+5. **Initialize the database**
+   ```bash
+   python -c "from services.database import init_db; init_db()"
+   ```
+
+6. **Run the application**
+   ```bash
+   python app.py
+   ```
+
+The application will be available at `http://localhost:5000`
+
+## 📚 API Documentation
+
+### Base URL
+```
+http://localhost:5000
+```
+
+### Endpoints
+
+#### 1. Product Recommendation Service
+**POST** `/product-recommendation`
+
+Process natural language queries and return product recommendations.
+
+**Request:**
+```json
+{
+  "query": "I need wireless headphones for gaming"
+}
+```
+
+**Response:**
+```json
+{
+  "products": [
+    {
+      "stock_code": "001",
+      "description": "High-Quality Gaming Headphones",
+      "unit_price": 89.99,
+      "country": "USA",
+      "similarity_score": 0.95
+    }
+  ],
+  "response": "I found excellent gaming headphones that match your requirements...",
+  "query_processed": "wireless headphones gaming"
+}
+```
+
+#### 2. OCR-Based Query Processing
+**POST** `/ocr-query`
+
+Extract text from handwritten images and process as product queries.
+
+**Request:**
+- Form data with `image_data` file upload
+
+**Response:**
+```json
+{
+  "products": [...],
+  "response": "Based on your handwritten query...",
+  "extracted_text": "wireless mouse for office work",
+  "confidence": 0.87
+}
+```
+
+#### 3. Image-Based Product Detection
+**POST** `/image-product-search`
+
+Identify products from uploaded images using CNN model.
+
+**Request:**
+- Form data with `product_image` file upload
+
+**Response:**
+```json
+{
+  "products": [...],
+  "response": "I identified this as a smartphone...",
+  "detected_class": "smartphone",
+  "confidence": 0.92
+}
+```
+
+#### 4. Sample Response
+**GET** `/sample_response`
+
+Returns a sample HTML response showing the expected output format.
+
+## 📁 Project Structure
+
+```
+ds_task_1ab/
+├── app.py                 # Main Flask application
+├── requirements.txt       # Python dependencies
+├── README.md             # Project documentation
+├── .env                  # Environment variables (create this)
+├── data/                 # Data storage
+│   └── dataset.zip       # E-commerce dataset
+├── services/             # Backend services
+│   ├── __init__.py
+│   ├── database.py       # Database operations
+│   ├── recommendation.py # Recommendation engine
+│   ├── ocr_service.py    # OCR functionality
+│   ├── cnn_model.py      # CNN model for image detection
+│   └── scraper.py        # Web scraping utilities
+├── models/               # Trained models
+│   └── cnn_product_classifier.h5
+├── templates/            # HTML templates
+│   ├── sample_response.html
+│   ├── text_query.html
+│   ├── image_query.html
+│   └── product_upload.html
+├── static/               # Static files (CSS, JS, images)
+│   ├── css/
+│   ├── js/
+│   └── images/
+├── notebooks/            # Jupyter notebooks for development
+│   ├── data_cleaning.ipynb
+│   ├── model_training.ipynb
+│   └── vector_database_setup.ipynb
+└── tests/                # Unit tests
+    ├── test_api.py
+    ├── test_services.py
+    └── test_models.py
+```
+
+## 🎯 Usage Examples
+
+### 1. Text Query Interface
+```python
+import requests
+
+response = requests.post('http://localhost:5000/product-recommendation',
+                        data={'query': 'affordable laptop for students'})
+print(response.json())
+```
+
+### 2. Image Upload for OCR
+```python
+import requests
+
+with open('handwritten_query.jpg', 'rb') as f:
+    response = requests.post('http://localhost:5000/ocr-query',
+                           files={'image_data': f})
+print(response.json())
+```
+
+### 3. Product Image Detection
+```python
+import requests
+
+with open('product_image.jpg', 'rb') as f:
+    response = requests.post('http://localhost:5000/image-product-search',
+                           files={'product_image': f})
+print(response.json())
+```
+
+## 🚧 Development Status
+
+### ✅ Completed
+- [x] Basic Flask application structure
+- [x] API endpoint definitions
+- [x] Sample response template
+- [x] Project documentation framework
+
+### 🔄 In Progress
+- [ ] Data cleaning and preprocessing
+- [ ] Vector database integration
+- [ ] OCR implementation
+- [ ] CNN model development
+- [ ] Web scraping functionality
+
+### 📋 Planned
+- [ ] Frontend interfaces
+- [ ] Unit tests
+- [ ] Performance optimization
+- [ ] Deployment configuration
+
 # Project Overview
 
 This project is divided into four main modules, each focusing on a distinct aspect of the system's development. The modules are designed to work together seamlessly, culminating in a comprehensive solution for product recommendation, OCR-based query processing, and image-based product detection.
@@ -109,6 +386,163 @@ Participants are required to create two sets of videos for each module, detailin
 - *Timing*: Submit the videos along with the incremental report at the end of each module.
 - *Format*: Ensure videos are in a common format (e.g., MP4) and quality is sufficient for clear viewing.
 - *Hosting*: Upload videos to a platform accessible to all participants and reviewers (e.g., Google Drive, YouTube in unlisted mode). Or you can use loom, fluvid, vmaker etc alternatively.
+
+## 🧪 Testing
+
+### Running Tests
+```bash
+# Run all tests
+python -m pytest tests/
+
+# Run specific test file
+python -m pytest tests/test_api.py
+
+# Run with coverage
+python -m pytest --cov=services tests/
+```
+
+### Test Structure
+- `tests/test_api.py` - API endpoint tests
+- `tests/test_services.py` - Service layer tests
+- `tests/test_models.py` - Model functionality tests
+
+## 🚀 Deployment
+
+### Local Development
+```bash
+export FLASK_ENV=development
+python app.py
+```
+
+### Production Deployment
+```bash
+# Using Gunicorn
+pip install gunicorn
+gunicorn -w 4 -b 0.0.0.0:8000 app:app
+
+# Using Docker (create Dockerfile first)
+docker build -t ecommerce-recommendation .
+docker run -p 8000:8000 ecommerce-recommendation
+```
+
+### Environment Variables for Production
+```env
+FLASK_ENV=production
+PINECONE_API_KEY=your_production_api_key
+PINECONE_ENVIRONMENT=your_production_environment
+SECRET_KEY=your_secret_key
+DATABASE_URL=your_database_url
+```
+
+## 📊 Performance Metrics
+
+### Expected Performance
+- **Query Response Time**: < 500ms for text queries
+- **OCR Processing**: < 2s for standard images
+- **CNN Inference**: < 1s for product classification
+- **Vector Search**: < 100ms for similarity matching
+
+### Monitoring
+- API response times
+- Database query performance
+- Model inference latency
+- Error rates and exceptions
+
+## 🔧 Configuration
+
+### Pinecone Setup
+1. Create account at [Pinecone](https://www.pinecone.io/)
+2. Create an index with appropriate dimensions
+3. Add API key to environment variables
+
+### OCR Configuration
+```python
+# Tesseract configuration
+TESSERACT_CONFIG = {
+    'lang': 'eng',
+    'config': '--psm 6'
+}
+```
+
+### CNN Model Configuration
+```python
+# Model parameters
+MODEL_CONFIG = {
+    'input_shape': (224, 224, 3),
+    'num_classes': 50,
+    'batch_size': 32,
+    'epochs': 100
+}
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these guidelines:
+
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass (`python -m pytest`)
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
+
+### Code Style
+- Follow PEP 8 for Python code
+- Use meaningful variable and function names
+- Add docstrings for all functions and classes
+- Keep functions small and focused
+
+### Commit Messages
+- Use present tense ("Add feature" not "Added feature")
+- Use imperative mood ("Move cursor to..." not "Moves cursor to...")
+- Limit first line to 72 characters
+- Reference issues and pull requests when applicable
+
+## 📝 Changelog
+
+### Version 1.0.0 (In Development)
+- Initial project setup
+- Basic API structure
+- Documentation framework
+- Sample response templates
+
+## 🐛 Known Issues
+
+- OCR accuracy may vary with handwriting quality
+- CNN model requires sufficient training data
+- Vector database initialization may take time on first run
+
+## 📞 Support
+
+For support and questions:
+- Create an issue in the repository
+- Contact the development team
+- Check the documentation for common solutions
+
+## 🙏 Acknowledgments
+
+- Pinecone for vector database services
+- Tesseract OCR community
+- Flask development team
+- Open source contributors
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👥 Team
+
+- **Project Lead**: [Your Name]
+- **Backend Developer**: [Team Member]
+- **ML Engineer**: [Team Member]
+- **Frontend Developer**: [Team Member]
+
+---
+
+**Note**: This project is part of a data science bootcamp and is designed for educational purposes. The system demonstrates various AI/ML techniques including NLP, computer vision, and recommendation systems.
 
 ## Instructions for Coding
 
