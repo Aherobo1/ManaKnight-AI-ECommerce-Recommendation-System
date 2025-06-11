@@ -3,68 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Query - Product Recommendation System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>🔍 Natural Language Search | Mana Knight Digital</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-shopping-cart me-2"></i>
-                Product Recommendation System
+            <a class="navbar-brand glow" href="/">
+                <i class="fas fa-robot me-2 pulse"></i>
+                <span class="gradient-text">Mana Knight Digital</span>
             </a>
             <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/">
+                <a class="nav-link fw-bold" href="/">
                     <i class="fas fa-home me-1"></i>
                     Home
+                </a>
+                <a class="nav-link fw-bold" href="/sample_response">
+                    <i class="fas fa-code me-1"></i>
+                    API Docs
                 </a>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="container mt-5">
         <div class="row">
-            <div class="col-12">
-                <div class="d-flex align-items-center mb-4">
-                    <i class="fas fa-keyboard fa-2x text-primary me-3"></i>
-                    <div>
-                        <h2 class="mb-0">Text Query Interface</h2>
-                        <p class="text-muted mb-0">Search for products using natural language</p>
-                    </div>
+            <div class="col-12 text-center mb-5">
+                <h1 class="display-5 fw-bold hero-title mb-3 fade-in">
+                    <i class="fas fa-comments me-3 pulse"></i>
+                    Natural Language Search
+                </h1>
+                <p class="lead text-white mb-4 fade-in">
+                    Simply describe what you're looking for in plain English. Our AI understands context
+                    and finds the perfect products for you.
+                </p>
+                <div class="d-flex justify-content-center gap-3 mb-4">
+                    <span class="badge bg-primary p-2 fs-6">
+                        <i class="fas fa-brain me-1"></i>TF-IDF Vectorization
+                    </span>
+                    <span class="badge bg-success p-2 fs-6">
+                        <i class="fas fa-search me-1"></i>Semantic Understanding
+                    </span>
+                    <span class="badge bg-warning p-2 fs-6">
+                        <i class="fas fa-lightbulb me-1"></i>Context Awareness
+                    </span>
                 </div>
             </div>
         </div>
 
-        <!-- Search Form -->
+        <!-- 🔍 BEAUTIFUL SEARCH FORM -->
         <div class="row">
             <div class="col-lg-8 mx-auto">
-                <div class="card shadow">
-                    <div class="card-body">
-                        <form id="textQueryForm">
-                            <div class="mb-3">
-                                <label for="queryInput" class="form-label">
+                <div class="form-container fade-in">
+                    <form id="textQueryForm">
+                        <div class="mb-4">
+                            <label for="queryInput" class="form-label">
+                                <i class="fas fa-search me-2"></i>
+                                What are you looking for?
+                            </label>
+                            <div class="input-group">
+                                <input type="text"
+                                       class="form-control"
+                                       id="queryInput"
+                                       name="query"
+                                       placeholder="e.g., wireless headphones for gaming, affordable laptop for students..."
+                                       required>
+                                <button class="btn btn-primary glow" type="submit" id="searchBtn">
                                     <i class="fas fa-search me-2"></i>
-                                    What are you looking for?
-                                </label>
-                                <div class="input-group">
-                                    <input type="text" 
-                                           class="form-control form-control-lg" 
-                                           id="queryInput" 
-                                           name="query"
-                                           placeholder="e.g., wireless headphones for gaming, affordable laptop for students..."
-                                           required>
-                                    <button class="btn btn-primary btn-lg" type="submit" id="searchBtn">
-                                        <i class="fas fa-search me-2"></i>
-                                        Search
-                                    </button>
-                                </div>
-                                <div class="form-text">
-                                    Try natural language queries like "I need a wireless mouse for office work" or "show me affordable smartphones"
-                                </div>
+                                    Search Products
+                                </button>
                             </div>
-                        </form>
+                            <div class="form-text mt-3">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                Try natural language queries like "I need a wireless mouse for office work" or "show me affordable smartphones"
+                            </div>
+                        </div>
+                    </form>
 
                         <!-- Example Queries -->
                         <div class="mt-3">
@@ -169,15 +185,22 @@
         </div>
     </div>
 
-    <footer class="bg-dark text-light mt-5 py-4">
+    <!-- 🌟 BEAUTIFUL FOOTER -->
+    <footer class="mt-5 py-5" style="background: rgba(0,0,0,0.2); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.1);">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <h6>Text Query Interface</h6>
-                    <p class="text-muted small">Natural language product search powered by AI</p>
+                    <h5 class="text-white fw-bold mb-3">
+                        <i class="fas fa-comments me-2 pulse"></i>
+                        Natural Language Search
+                    </h5>
+                    <p class="text-white-50 mb-0">
+                        Powered by advanced AI and machine learning technologies
+                    </p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <a href="/" class="btn btn-outline-light btn-sm">
+                    <h6 class="text-white fw-bold mb-3">Mana Knight Digital</h6>
+                    <a href="/" class="btn btn-primary glow">
                         <i class="fas fa-arrow-left me-1"></i>
                         Back to Home
                     </a>
