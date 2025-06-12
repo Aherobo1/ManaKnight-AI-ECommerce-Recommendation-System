@@ -39,37 +39,87 @@ class RecommendationEngine:
     def preprocess_query(self, query: str) -> str:
         """
         Preprocess user query for better matching.
-        
+
         Args:
             query (str): Raw user query
-            
+
         Returns:
             str: Preprocessed query
         """
         # Convert to lowercase
         query = query.lower()
-        
-        # Remove special characters but keep spaces
-        query = re.sub(r'[^a-zA-Z0-9\s]', ' ', query)
-        
+
+        # Remove special characters but keep spaces and hyphens
+        query = re.sub(r'[^a-zA-Z0-9\s\-]', ' ', query)
+
         # Remove extra whitespace
         query = ' '.join(query.split())
-        
-        # Expand common abbreviations
+
+        # Expand common abbreviations and synonyms
         abbreviations = {
-            'laptop': 'laptop computer',
-            'phone': 'smartphone mobile phone',
-            'headphones': 'headphones earphones audio',
-            'mouse': 'computer mouse wireless',
-            'keyboard': 'computer keyboard wireless'
+            'laptop': 'laptop computer notebook',
+            'phone': 'smartphone mobile phone cellphone',
+            'headphones': 'headphones earphones audio headset',
+            'mouse': 'computer mouse wireless optical',
+            'keyboard': 'computer keyboard wireless mechanical',
+            't-shirt': 'tshirt shirt clothing apparel fashion',
+            'tshirt': 'tshirt shirt clothing apparel fashion',
+            'shirt': 'shirt clothing apparel fashion',
+            'antiques': 'antiques vintage collectibles old items',
+            'teapot': 'teapot tea pot kitchen utensils cookware',
+            'computer accessories': 'computer accessories peripherals hardware tech',
+            'accessories': 'accessories peripherals add-ons extras'
         }
-        
+
         for abbrev, expansion in abbreviations.items():
             if abbrev in query:
                 query = query.replace(abbrev, expansion)
-        
+
         return query
-    
+
+    def extract_multiple_queries(self, text: str) -> List[str]:
+        """
+        Extract multiple product queries from a single text (like handwritten lists).
+
+        Args:
+            text (str): Input text that may contain multiple queries
+
+        Returns:
+            List[str]: List of individual product queries
+        """
+        # Split by common separators
+        separators = ['\n', '-', '•', '*', '1.', '2.', '3.', '4.', '5.']
+
+        # Start with the full text
+        queries = [text]
+
+        # Split by each separator
+        for separator in separators:
+            new_queries = []
+            for query in queries:
+                if separator in query:
+                    parts = query.split(separator)
+                    new_queries.extend([part.strip() for part in parts if part.strip()])
+                else:
+                    new_queries.append(query)
+            queries = new_queries
+
+        # Clean up queries
+        cleaned_queries = []
+        for query in queries:
+            # Remove common prefixes
+            query = re.sub(r'^(looking for|suggest|is there|i want to buy|find me)', '', query, flags=re.IGNORECASE)
+            query = query.strip()
+
+            # Only keep queries with actual product terms
+            if len(query) > 3 and any(word in query.lower() for word in [
+                'shirt', 'antique', 'teapot', 'computer', 'accessory', 'laptop', 'phone',
+                'headphone', 'mouse', 'keyboard', 'clothing', 'kitchen', 'tech', 'electronic'
+            ]):
+                cleaned_queries.append(query)
+
+        return cleaned_queries if cleaned_queries else [text]
+
     def load_or_create_vectors(self):
         """Load existing vectors or create new ones from database."""
         vector_file = 'models/product_vectors.pkl'
@@ -132,43 +182,82 @@ class RecommendationEngine:
     def get_recommendations(self, query: str, top_k: int = 5) -> Tuple[List[Dict[str, Any]], str]:
         """
         Get product recommendations based on query.
-        
+
         Args:
-            query (str): User query
+            query (str): User query (may contain multiple items)
             top_k (int): Number of recommendations to return
-            
+
         Returns:
             Tuple[List[Dict], str]: (recommendations, natural language response)
         """
         if not self.vectorizer or self.product_vectors is None:
             return [], "Sorry, the recommendation system is not ready yet."
-        
-        # Preprocess query
-        processed_query = self.preprocess_query(query)
-        
-        # Vectorize query
-        query_vector = self.vectorizer.transform([processed_query])
-        
-        # Calculate similarities
-        similarities = cosine_similarity(query_vector, self.product_vectors).flatten()
-        
-        # Get top matches
-        top_indices = np.argsort(similarities)[::-1][:top_k]
-        
-        recommendations = []
-        for idx in top_indices:
-            if similarities[idx] > 0.1:  # Minimum similarity threshold
-                product = self.products_data[idx].copy()
-                product['similarity_score'] = float(similarities[idx])
-                recommendations.append(product)
-        
+
+        # Extract multiple queries if present
+        individual_queries = self.extract_multiple_queries(query)
+
+        all_recommendations = []
+        query_results = {}
+
+        # Process each individual query
+        for individual_query in individual_queries:
+            # Preprocess query
+            processed_query = self.preprocess_query(individual_query)
+
+            # Vectorize query
+            query_vector = self.vectorizer.transform([processed_query])
+
+            # Calculate similarities
+            similarities = cosine_similarity(query_vector, self.product_vectors).flatten()
+
+            # Get top matches for this specific query
+            top_indices = np.argsort(similarities)[::-1][:max(2, top_k//len(individual_queries))]
+
+            query_recommendations = []
+            for idx in top_indices:
+                if similarities[idx] > 0.05:  # Lower threshold for better matching
+                    product = self.products_data[idx].copy()
+                    product['similarity_score'] = float(similarities[idx])
+                    product['matched_query'] = individual_query
+                    query_recommendations.append(product)
+
+            if query_recommendations:
+                query_results[individual_query] = query_recommendations
+                all_recommendations.extend(query_recommendations)
+
+        # If no individual queries worked, try the full query
+        if not all_recommendations:
+            processed_query = self.preprocess_query(query)
+            query_vector = self.vectorizer.transform([processed_query])
+            similarities = cosine_similarity(query_vector, self.product_vectors).flatten()
+            top_indices = np.argsort(similarities)[::-1][:top_k]
+
+            for idx in top_indices:
+                if similarities[idx] > 0.05:
+                    product = self.products_data[idx].copy()
+                    product['similarity_score'] = float(similarities[idx])
+                    product['matched_query'] = query
+                    all_recommendations.append(product)
+
+        # Remove duplicates and sort by similarity
+        seen_products = set()
+        unique_recommendations = []
+        for product in sorted(all_recommendations, key=lambda x: x['similarity_score'], reverse=True):
+            product_key = (product['stock_code'], product['description'])
+            if product_key not in seen_products:
+                seen_products.add(product_key)
+                unique_recommendations.append(product)
+
+        # Limit to top_k
+        final_recommendations = unique_recommendations[:top_k]
+
         # Generate natural language response
-        response = self.generate_response(query, recommendations)
-        
+        response = self.generate_multi_query_response(query, query_results, final_recommendations)
+
         # Log query
-        self.db_service.log_user_query(query, 'text', len(recommendations))
-        
-        return recommendations, response
+        self.db_service.log_user_query(query, 'text', len(final_recommendations))
+
+        return final_recommendations, response
     
     def generate_response(self, query: str, recommendations: List[Dict[str, Any]]) -> str:
         """
@@ -206,7 +295,63 @@ class RecommendationEngine:
             response_parts.append(f"These options are budget-friendly with an average price of ${avg_price:.2f}.")
         
         return " ".join(response_parts)
-    
+
+    def generate_multi_query_response(self, original_query: str, query_results: Dict[str, List], recommendations: List[Dict[str, Any]]) -> str:
+        """
+        Generate response for multiple queries extracted from handwritten text.
+
+        Args:
+            original_query (str): Original query text
+            query_results (Dict): Results for each individual query
+            recommendations (List[Dict]): Final recommendations
+
+        Returns:
+            str: Natural language response
+        """
+        if not recommendations:
+            return f"I couldn't find specific products matching your requests. Please try more specific search terms."
+
+        response_parts = []
+
+        if len(query_results) > 1:
+            response_parts.append(f"I found products for your multiple requests:")
+
+            # Group recommendations by matched query
+            for query, products in query_results.items():
+                if products:
+                    response_parts.append(f"\nFor '{query}':")
+                    for i, product in enumerate(products[:2], 1):  # Show top 2 per query
+                        response_parts.append(f"  {i}. {product['description']} (${product['unit_price']:.2f})")
+        else:
+            # Single query response
+            response_parts.append(f"I found {len(recommendations)} great options for your request:")
+            for i, product in enumerate(recommendations[:3], 1):
+                response_parts.append(f"{i}. {product['description']} (${product['unit_price']:.2f})")
+
+        # Add helpful context based on the types of products found
+        product_types = set()
+        for product in recommendations:
+            desc_lower = product['description'].lower()
+            if any(word in desc_lower for word in ['shirt', 'clothing', 'apparel']):
+                product_types.add('clothing')
+            elif any(word in desc_lower for word in ['antique', 'vintage', 'collectible']):
+                product_types.add('antiques')
+            elif any(word in desc_lower for word in ['teapot', 'tea', 'kitchen']):
+                product_types.add('kitchen')
+            elif any(word in desc_lower for word in ['computer', 'tech', 'electronic']):
+                product_types.add('electronics')
+
+        if 'clothing' in product_types:
+            response_parts.append("\n💡 Tip: Check size charts before ordering clothing items.")
+        if 'antiques' in product_types:
+            response_parts.append("\n💡 Tip: Antique items may have unique characteristics and limited availability.")
+        if 'kitchen' in product_types:
+            response_parts.append("\n💡 Tip: Kitchen items come with care instructions for best results.")
+        if 'electronics' in product_types:
+            response_parts.append("\n💡 Tip: Electronics include warranty and technical support.")
+
+        return " ".join(response_parts)
+
     def get_similar_products(self, product_id: int, top_k: int = 5) -> List[Dict[str, Any]]:
         """
         Get products similar to a given product.

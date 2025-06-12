@@ -65,6 +65,9 @@ class DatabaseService:
             ''')
             
             conn.commit()
+
+        # Add enhanced sample data on first initialization
+        self.add_enhanced_sample_data()
     
     @contextmanager
     def get_connection(self):
@@ -143,7 +146,72 @@ class DatabaseService:
         except Exception as e:
             print(f"Error loading CSV: {e}")
             return 0
-    
+
+    def add_enhanced_sample_data(self):
+        """Add enhanced sample data including items commonly requested in handwritten queries."""
+        enhanced_products = [
+            # T-shirts and clothing
+            ('TSHIRT001', 'Cotton T-Shirt Classic Fit Comfortable', 19.99, 'USA'),
+            ('TSHIRT002', 'Graphic T-Shirt Vintage Design Fashion', 24.99, 'USA'),
+            ('TSHIRT003', 'Premium T-Shirt Organic Cotton Sustainable', 29.99, 'USA'),
+            ('SHIRT001', 'Dress Shirt Business Professional', 39.99, 'Italy'),
+            ('SHIRT002', 'Casual Shirt Cotton Comfortable', 34.99, 'Portugal'),
+
+            # Antiques and collectibles
+            ('ANTIQUE001', 'Vintage Pocket Watch Collectible Antique', 299.99, 'United Kingdom'),
+            ('ANTIQUE002', 'Antique Vase Ceramic Decorative Collectible', 149.99, 'France'),
+            ('ANTIQUE003', 'Vintage Jewelry Box Wooden Antique', 89.99, 'Germany'),
+            ('ANTIQUE004', 'Collectible Coins Set Vintage Antique', 199.99, 'USA'),
+            ('ANTIQUE005', 'Antique Mirror Ornate Frame Vintage', 179.99, 'Italy'),
+
+            # Teapots and kitchen items
+            ('TEAPOT001', 'Ceramic Teapot Traditional Design Kitchen', 45.99, 'China'),
+            ('TEAPOT002', 'Glass Teapot Heat Resistant Modern', 39.99, 'Germany'),
+            ('TEAPOT003', 'Cast Iron Teapot Japanese Style Traditional', 89.99, 'Japan'),
+            ('TEAPOT004', 'Electric Teapot Stainless Steel Kitchen', 69.99, 'Germany'),
+            ('TEAPOT005', 'Porcelain Teapot Elegant Design Fine China', 79.99, 'China'),
+
+            # Computer accessories
+            ('COMP001', 'Wireless Mouse Ergonomic Computer Accessory', 29.99, 'China'),
+            ('COMP002', 'Mechanical Keyboard Gaming Computer Accessory', 89.99, 'Taiwan'),
+            ('COMP003', 'USB Hub Multi-Port Computer Accessory', 24.99, 'China'),
+            ('COMP004', 'Laptop Stand Adjustable Computer Accessory', 49.99, 'USA'),
+            ('COMP005', 'Webcam HD 1080p Computer Accessory', 59.99, 'China'),
+            ('COMP006', 'Computer Monitor Stand Desk Accessory', 39.99, 'China'),
+            ('COMP007', 'Cable Management Kit Computer Accessory', 19.99, 'China'),
+            ('COMP008', 'External Hard Drive Portable Computer Accessory', 79.99, 'Singapore'),
+
+            # Additional popular items
+            ('HEADSET001', 'Gaming Headset RGB Computer Accessory', 79.99, 'China'),
+            ('MOUSE001', 'Gaming Mouse High DPI Computer Accessory', 49.99, 'China'),
+            ('PAD001', 'Mouse Pad Large Gaming Computer Accessory', 19.99, 'China'),
+        ]
+
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+
+                added_count = 0
+                for stock_code, description, price, country in enhanced_products:
+                    try:
+                        cursor.execute('''
+                            INSERT OR REPLACE INTO products
+                            (stock_code, description, unit_price, country)
+                            VALUES (?, ?, ?, ?)
+                        ''', (stock_code, description, price, country))
+                        added_count += 1
+                    except Exception as e:
+                        print(f"Error adding product {stock_code}: {e}")
+                        continue
+
+                conn.commit()
+                print(f"Added {added_count} enhanced sample products")
+                return added_count
+
+        except Exception as e:
+            print(f"Error adding enhanced sample data: {e}")
+            return 0
+
     def get_products(self, limit: int = 100, offset: int = 0) -> List[Dict[str, Any]]:
         """
         Get products from database.

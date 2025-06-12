@@ -37,23 +37,35 @@ except ImportError:
     CNNModel = None
 
 try:
-    from .scraper import WebScraper
+    from .scraper import WebScraper as ProductImageScraper
 except ImportError:
-    WebScraper = None
+    ProductImageScraper = None
 
 try:
     from .vector_db import VectorDatabase
 except ImportError:
     VectorDatabase = None
 
+try:
+    from .data_cleaning import DataCleaningService
+except ImportError:
+    DataCleaningService = None
+
+try:
+    from .enhanced_cnn_model import EnhancedCNNModel
+except ImportError:
+    EnhancedCNNModel = None
+
 # List of available services
 __all__ = [
     'DatabaseService',
-    'RecommendationEngine', 
+    'RecommendationEngine',
     'OCRService',
     'CNNModel',
-    'WebScraper',
-    'VectorDatabase'
+    'EnhancedCNNModel',
+    'ProductImageScraper',
+    'VectorDatabase',
+    'DataCleaningService'
 ]
 
 # Service registry for dependency injection
@@ -62,8 +74,10 @@ SERVICE_REGISTRY = {
     'recommendation': RecommendationEngine,
     'ocr': OCRService,
     'cnn': CNNModel,
-    'scraper': WebScraper,
-    'vector_db': VectorDatabase
+    'enhanced_cnn': EnhancedCNNModel,
+    'scraper': ProductImageScraper,
+    'vector_db': VectorDatabase,
+    'data_cleaning': DataCleaningService
 }
 
 def get_service(service_name):
