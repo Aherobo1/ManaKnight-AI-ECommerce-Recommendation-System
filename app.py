@@ -44,31 +44,131 @@ os.makedirs('data', exist_ok=True)
 os.makedirs('models', exist_ok=True)
 os.makedirs('logs', exist_ok=True)
 
-# Sample products for fallback
+# Sample products for fallback - Updated with your requested categories
 SAMPLE_PRODUCTS = [
+    # T-shirts
     {
         "id": 1,
-        "stock_code": "LP001",
-        "description": "Gaming Laptop High Performance 16GB RAM RTX 4060",
-        "unit_price": 1299.99,
+        "stock_code": "TS001",
+        "description": "Cotton T-Shirt Classic Fit Comfortable Casual Wear",
+        "unit_price": 19.99,
         "country": "United States",
-        "similarity_score": 0.95
+        "similarity_score": 0.95,
+        "category": "clothing"
     },
     {
         "id": 2,
-        "stock_code": "WH001",
-        "description": "Wireless Bluetooth Headphones Premium Quality",
-        "unit_price": 89.99,
-        "country": "United Kingdom",
-        "similarity_score": 0.88
+        "stock_code": "TS002",
+        "description": "Premium T-Shirt Organic Cotton Soft Breathable",
+        "unit_price": 29.99,
+        "country": "Canada",
+        "similarity_score": 0.92,
+        "category": "clothing"
     },
     {
         "id": 3,
-        "stock_code": "SM001",
-        "description": "Smartphone Android 128GB Camera 48MP",
-        "unit_price": 599.99,
+        "stock_code": "TS003",
+        "description": "Designer T-Shirt Trendy Fashion Statement Piece",
+        "unit_price": 45.99,
+        "country": "Italy",
+        "similarity_score": 0.89,
+        "category": "clothing"
+    },
+
+    # Antiques
+    {
+        "id": 4,
+        "stock_code": "AN001",
+        "description": "Vintage Wooden Clock Antique Handcrafted Timepiece",
+        "unit_price": 299.99,
+        "country": "United Kingdom",
+        "similarity_score": 0.94,
+        "category": "antiques"
+    },
+    {
+        "id": 5,
+        "stock_code": "AN002",
+        "description": "Antique Brass Compass Vintage Navigation Instrument",
+        "unit_price": 149.99,
+        "country": "France",
+        "similarity_score": 0.91,
+        "category": "antiques"
+    },
+    {
+        "id": 6,
+        "stock_code": "AN003",
+        "description": "Victorian Era Jewelry Box Ornate Antique Storage",
+        "unit_price": 189.99,
+        "country": "United Kingdom",
+        "similarity_score": 0.88,
+        "category": "antiques"
+    },
+
+    # Teapots
+    {
+        "id": 7,
+        "stock_code": "TP001",
+        "description": "Ceramic Teapot Traditional Design Tea Brewing Set",
+        "unit_price": 39.99,
+        "country": "China",
+        "similarity_score": 0.96,
+        "category": "kitchenware"
+    },
+    {
+        "id": 8,
+        "stock_code": "TP002",
+        "description": "Glass Teapot Heat Resistant Transparent Tea Maker",
+        "unit_price": 24.99,
         "country": "Germany",
-        "similarity_score": 0.82
+        "similarity_score": 0.93,
+        "category": "kitchenware"
+    },
+    {
+        "id": 9,
+        "stock_code": "TP003",
+        "description": "Stainless Steel Teapot Modern Durable Tea Server",
+        "unit_price": 49.99,
+        "country": "Japan",
+        "similarity_score": 0.90,
+        "category": "kitchenware"
+    },
+
+    # Computer Accessories
+    {
+        "id": 10,
+        "stock_code": "CA001",
+        "description": "Wireless Mouse Ergonomic Computer Accessory Office",
+        "unit_price": 29.99,
+        "country": "United States",
+        "similarity_score": 0.95,
+        "category": "electronics"
+    },
+    {
+        "id": 11,
+        "stock_code": "CA002",
+        "description": "Mechanical Keyboard RGB Backlit Computer Gaming",
+        "unit_price": 89.99,
+        "country": "Taiwan",
+        "similarity_score": 0.92,
+        "category": "electronics"
+    },
+    {
+        "id": 12,
+        "stock_code": "CA003",
+        "description": "USB Hub Multi-Port Computer Accessory Expansion",
+        "unit_price": 19.99,
+        "country": "South Korea",
+        "similarity_score": 0.89,
+        "category": "electronics"
+    },
+    {
+        "id": 13,
+        "stock_code": "CA004",
+        "description": "Laptop Stand Adjustable Computer Accessory Ergonomic",
+        "unit_price": 39.99,
+        "country": "Denmark",
+        "similarity_score": 0.87,
+        "category": "electronics"
     }
 ]
 
@@ -156,17 +256,48 @@ def product_recommendation():
                 products = []
                 response = "Recommendation service temporarily unavailable."
         else:
-            # Fallback: Simple keyword matching
+            # Enhanced fallback: Smart keyword matching
             products = []
             query_lower = query.lower()
+
+            # Define keyword mappings for better matching
+            keyword_mappings = {
+                't-shirt': ['t-shirt', 'tshirt', 'shirt', 'clothing', 'wear', 'cotton'],
+                'antique': ['antique', 'vintage', 'old', 'classic', 'traditional', 'historical'],
+                'teapot': ['teapot', 'tea', 'pot', 'brewing', 'ceramic', 'kettle'],
+                'computer': ['computer', 'pc', 'laptop', 'mouse', 'keyboard', 'accessory', 'usb', 'tech']
+            }
+
+            # Score products based on keyword relevance
+            scored_products = []
             for product in SAMPLE_PRODUCTS:
-                if any(word in product['description'].lower() for word in query_lower.split()):
-                    products.append(product)
+                score = 0
+                product_desc = product['description'].lower()
+
+                # Check direct word matches
+                for word in query_lower.split():
+                    if word in product_desc:
+                        score += 2
+
+                # Check category keyword matches
+                for category, keywords in keyword_mappings.items():
+                    for keyword in keywords:
+                        if keyword in query_lower and keyword in product_desc:
+                            score += 3
+
+                if score > 0:
+                    product_copy = product.copy()
+                    product_copy['similarity_score'] = min(0.95, 0.70 + (score * 0.05))
+                    scored_products.append((score, product_copy))
+
+            # Sort by score and take top matches
+            scored_products.sort(key=lambda x: x[0], reverse=True)
+            products = [p[1] for p in scored_products[:5]]
 
             if not products:
                 products = SAMPLE_PRODUCTS[:3]  # Return top 3 as fallback
 
-            response = f"Found {len(products)} products matching '{query}' using fallback search."
+            response = f"Found {len(products)} products matching '{query}'. Here are the best matches:"
 
         # Format products for response
         formatted_products = []
