@@ -18,7 +18,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 try:
     from app import app
     from services.database import DatabaseService
-    from services.recommendation import RecommendationService
+    from services.recommendation import RecommendationEngine
     from services.ocr_service import OCRService
     from services.enhanced_cnn_model import EnhancedCNNModel
     from services.vector_db import VectorDatabase

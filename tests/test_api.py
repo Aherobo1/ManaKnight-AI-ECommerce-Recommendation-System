@@ -90,7 +90,7 @@ class TestAPI(unittest.TestCase):
         response = self.client.post('/image-product-search', data=data)
         self.assertEqual(response.status_code, 200)
         result = json.loads(response.data)
-        self.assertIn('predicted_class', result)
+        self.assertIn('detected_class', result)
         print("✅ Image product search API test passed")
     
     def test_health_endpoint(self):
