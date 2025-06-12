@@ -37,3 +37,12 @@ pytest-cov==4.1.0
 jupyter==1.0.0
 matplotlib==3.7.2
 seaborn==0.12.2
+
+# System Monitoring
+psutil==7.0.0
+
+# Caching (Optional - Redis)
+redis==4.6.0
+
+# Web Utilities
+werkzeug==3.1.3
