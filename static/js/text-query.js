@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const errorSection = document.getElementById('errorSection');
     const naturalLanguageResponse = document.getElementById('naturalLanguageResponse');
     const productsTableBody = document.getElementById('productsTableBody');
+    const productsGrid = document.getElementById('productsGrid');
     const noProductsMessage = document.getElementById('noProductsMessage');
     const errorMessage = document.getElementById('errorMessage');
 
@@ -131,52 +132,86 @@ document.addEventListener('DOMContentLoaded', function() {
         typeText(naturalLanguageResponse, data.response || 'No response available.');
 
         // Clear previous results
+        productsGrid.innerHTML = '';
         productsTableBody.innerHTML = '';
 
         if (data.products && data.products.length > 0) {
-            // Populate products table with animation
+            // Populate products grid with beautiful cards
             data.products.forEach((product, index) => {
                 setTimeout(() => {
-                    const row = document.createElement('tr');
-                    row.style.opacity = '0';
-                    row.style.transform = 'translateY(20px)';
-                    
                     // Determine similarity color
                     const similarity = product.similarity_score || 0;
                     let badgeClass = 'bg-secondary';
-                    if (similarity > 0.7) badgeClass = 'bg-success';
-                    else if (similarity > 0.5) badgeClass = 'bg-primary';
-                    else if (similarity > 0.3) badgeClass = 'bg-warning';
-                    
-                    row.innerHTML = `
-                        <td><code class="text-primary">${product.stock_code || 'N/A'}</code></td>
-                        <td>
-                            <strong>${product.description || 'N/A'}</strong>
-                        </td>
-                        <td>
-                            <span class="text-success fw-bold">$${(product.unit_price || 0).toFixed(2)}</span>
-                        </td>
-                        <td>
-                            <span class="badge bg-light text-dark">${product.country || 'N/A'}</span>
-                        </td>
-                        <td>
-                            <span class="badge ${badgeClass}">
-                                ${(similarity * 100).toFixed(1)}%
-                            </span>
-                        </td>
+                    let badgeText = 'Low Match';
+                    if (similarity > 0.9) { badgeClass = 'bg-success'; badgeText = 'Excellent Match'; }
+                    else if (similarity > 0.7) { badgeClass = 'bg-primary'; badgeText = 'Good Match'; }
+                    else if (similarity > 0.5) { badgeClass = 'bg-warning'; badgeText = 'Fair Match'; }
+
+                    // Create product card
+                    const cardCol = document.createElement('div');
+                    cardCol.className = 'col-md-6 col-lg-4 mb-4';
+                    cardCol.style.opacity = '0';
+                    cardCol.style.transform = 'translateY(30px)';
+
+                    const imagePath = product.image_path || '/static/images/products/default.png';
+
+                    cardCol.innerHTML = `
+                        <div class="card product-card h-100">
+                            <div class="position-relative">
+                                <img src="${imagePath}"
+                                     class="card-img-top"
+                                     alt="${product.description || 'Product'}"
+                                     style="height: 200px; object-fit: cover;"
+                                     onerror="this.src='/static/images/products/default.png'">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge ${badgeClass} px-3 py-2" style="border-radius: 20px;">
+                                        ${(similarity * 100).toFixed(1)}% ${badgeText}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <div class="mb-2">
+                                    <small class="text-muted fw-bold">${product.stock_code || 'N/A'}</small>
+                                </div>
+                                <h6 class="card-title text-dark mb-3" style="line-height: 1.4;">
+                                    ${product.description || 'N/A'}
+                                </h6>
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="h5 text-success fw-bold mb-0">
+                                                $${(product.unit_price || 0).toFixed(2)}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted">
+                                                <i class="fas fa-globe me-1"></i>
+                                                ${product.country || 'N/A'}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button class="btn btn-primary btn-sm w-100" style="border-radius: 20px;">
+                                            <i class="fas fa-shopping-cart me-2"></i>
+                                            View Details
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     `;
-                    
-                    productsTableBody.appendChild(row);
-                    
-                    // Animate row appearance
+
+                    productsGrid.appendChild(cardCol);
+
+                    // Animate card appearance
                     setTimeout(() => {
-                        row.style.transition = 'all 0.3s ease';
-                        row.style.opacity = '1';
-                        row.style.transform = 'translateY(0)';
-                    }, 50);
-                }, index * 100);
+                        cardCol.style.transition = 'all 0.5s ease';
+                        cardCol.style.opacity = '1';
+                        cardCol.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 150);
             });
-            
+
             noProductsMessage.style.display = 'none';
         } else {
             noProductsMessage.style.display = 'block';

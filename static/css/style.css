@@ -124,6 +124,43 @@ body::after {
     position: relative;
 }
 
+/* 🛍️ PRODUCT CARDS */
+.product-card {
+    border-radius: 15px !important;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.product-card .card-img-top {
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.product-card .badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.product-card .btn {
+    border-radius: 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.product-card .btn:hover {
+    transform: translateY(-1px);
+}
+
 .card::before {
     content: '';
     position: absolute;
@@ -247,7 +284,7 @@ body::after {
 
 .btn:hover {
     transform: translateY(-6px) scale(1.05);
-    color: white !important;
+    color: black !important;
 }
 
 .btn-primary:hover {
