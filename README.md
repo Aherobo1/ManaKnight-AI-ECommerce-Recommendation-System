@@ -626,10 +626,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Team
 
-- **Project Lead**: [Your Name]
-- **Backend Developer**: [Team Member]
-- **ML Engineer**: [Team Member]
-- **Frontend Developer**: [Team Member]
+- **Project Lead**: [Aherobo Ovie Victor]
+- **Backend Developer**: [Aherobo Ovie Victor]
+- **ML Engineer**: [Aherobo Ovie Victor]
+- **Frontend Developer**: [Aherobo Ovie Victor]
 
 ---
 
